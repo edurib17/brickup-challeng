@@ -10,10 +10,11 @@ TaskSchema.schema = {
     title: 'string',
     description: 'string',
     image: 'string',
+    datetime: 'date'
   },
 };
 
 
-let realm = new Realm ({schema: [TaskSchema], schemaVersion: 1});
+let realm = new Realm ({schema: [TaskSchema], schemaVersion: 2});
 
 export default realm;

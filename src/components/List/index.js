@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import {
@@ -11,34 +11,45 @@ import {
   Spacer,
   Avatar,
   View,
+  Center,
   Button,
+  Spinner,
   ScrollView,
 } from 'native-base';
+import realm from '../../services/TaskSchema';
+import moment from 'moment';
 
 const List = () => {
-  const data = [
-    {
-      id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
-      name: 'Rebocar Parede',
-      timeStamp: '03/02/1992',
-      avatarUrl: 'https://s2.glbimg.com/CrTrmLu7obeP3NoLgPatN4U2fMk=/620x480/e.glbimg.com/og/ed/f/original/2018/05/21/faxina.jpg',
-    },
-    {
-      id: 'bd7acbea-c1b1-46c2-aed5-3ad53asbb28ba',
-      name: 'Limpar Terreno',
-      timeStamp: '03/02/1992',
-      avatarUrl: 'https://s2.glbimg.com/CrTrmLu7obeP3NoLgPatN4U2fMk=/620x480/e.glbimg.com/og/ed/f/original/2018/05/21/faxina.jpg',
-    },
-    {
-      id: 'bd7acbea-cwq1b1-46c2-aed5-3ad53abb28ba',
-      name: 'Limpar Cozinha',
-      timeStamp: '03/02/1992',
-      avatarUrl: 'https://reactjs.org/logo-og.png',
-    },
-  ];
+  const [data, setData] = useState ([]);
+  const [toast, setToast] = useState (false);
+
+  useEffect (() => {
+    setToast (true);
+    const tasks = realm.objects ('Task');
+    setData (tasks);
+    setToast (false);
+    realm.write (() => {
+      // realm.deleteAll()
+      //realm.delete(realm.objects('Task'));
+    });
+  }, []);
+
   return (
     <View>
       <Heading fontSize="xl" marginTop="-15px" />
+      {data.length <= 0 && toast == false
+        ? <Center mt={150}>
+            <FontAwesome name="tasks" size={150} color="gray" />
+            <Heading size="md" color="gray.500">
+              Nenhuma task registrada
+            </Heading>
+          </Center>
+        : null}
+      {toast
+        ? <Center mt={150}>
+            <Spinner color="gray.900" size="sm" />
+          </Center>
+        : null}
       <ScrollView maxW="900" h="100%">
         <FlatList
           data={data}
@@ -58,7 +69,7 @@ const List = () => {
                   borderRadius={10}
                   size="48px"
                   source={{
-                    uri: item.avatarUrl,
+                    uri: item.image,
                   }}
                 />
                 <VStack>
@@ -71,7 +82,7 @@ const List = () => {
                     numberOfLines={2}
                     ellipsizeMode="head"
                   >
-                    {item.name}
+                    {item.title}
 
                   </Text>
                   <Text
@@ -80,7 +91,8 @@ const List = () => {
                       color: 'warmGray.200',
                     }}
                   >
-                    {item.timeStamp}
+
+                    {moment (item.datetime).format ('DD/MM/YYYY')}
                   </Text>
                 </VStack>
                 <Spacer />

@@ -13,6 +13,7 @@ import {
   Center,
   Image,
 } from 'native-base';
+import {useNavigation} from '@react-navigation/native';
 import uuid from 'react-native-uuid';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import * as ImagePicker from 'react-native-image-picker';
@@ -24,21 +25,8 @@ const TaskForm = () => {
   const [image, setImage] = useState (null);
   const [alert, setAlert] = useState (false);
   const [errors, setErrors] = useState ({});
-
-  const statusArray = [
-    {
-      status: 'success',
-      title: 'Task salva com sucesso!!',
-    },
-    {
-      status: 'error',
-      title: 'Houve um erro!!',
-    },
-    {
-      status: 'info',
-      title: 'Escolha uma imagem!!',
-    },
-  ];
+  const [status, setStatus] = useState ({});
+  const navigation = useNavigation ();
 
   const pickImage = () => {
     let options = {
@@ -57,11 +45,15 @@ const TaskForm = () => {
     });
   };
 
-  const ativeAlert = () => {
+  const ativeAlert = (info, title) => {
     setAlert (true);
+    setStatus ({
+      status: info,
+      title: title,
+    });
     setTimeout (() => {
       setAlert (false);
-    }, 2500);
+    }, 2900);
   };
 
   const closeAlert = () => {
@@ -94,7 +86,6 @@ const TaskForm = () => {
       });
       return false;
     }
-
     return true;
   };
 
@@ -106,15 +97,22 @@ const TaskForm = () => {
           title: title,
           description: description,
           image: image,
+          datetime: Date(),
         });
       });
+      ativeAlert ('success', 'Task salva com sucesso!!');
+      setTimeout (() => {
+        navigation.push ('Home');
+      }, 1000);
     } catch (error) {
       console.log (error);
     }
   }
 
   async function handleAddTask () {
+    if (image == null) return ativeAlert ('info', 'Escolha uma imagem!!');
     if (validate ()) {
+      setErrors ({});
       await saveTask ();
       setTitle ('');
       setDescription ('');
@@ -125,9 +123,7 @@ const TaskForm = () => {
     <View>
       <Header name="Cadastro" />
       <Center>
-        {alert
-          ? <AlertTask status={statusArray[0]} closeAlert={closeAlert} />
-          : null}
+        {alert ? <AlertTask status={status} closeAlert={closeAlert} /> : null}
         <FormControl
           m="10"
           w="xs"
