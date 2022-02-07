@@ -1,7 +1,7 @@
 import React, {useEffect} from 'react';
-import {FlatList} from 'react-native';
+import {FlatList, Alert} from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
-import {listTasks} from '../../actions/taskActions';
+import {listTasks, deleteTask} from '../../actions/taskActions';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import {
@@ -25,10 +25,21 @@ const List = () => {
   const dispatch = useDispatch ();
   const tasksList = useSelector (state => state.tasksList);
   const {loading, error, tasks} = tasksList;
+  const taskDelete = useSelector (state => state.taskDelete);
 
   useEffect (() => {
     dispatch (listTasks ());
   }, []);
+
+  const createTwoButtonAlert = id => {
+    return Alert.alert ('Excluir Task', 'Você tem certeza ??', [
+      {
+        text: 'Cancelar',
+        style: 'cancel',
+      },
+      {text: 'Confirmar', onPress: () => dispatch (deleteTask (id))},
+    ]);
+  };
 
   return (
     <View>
@@ -36,11 +47,11 @@ const List = () => {
         ? <Center mt={150}>
             <Spinner color="gray.900" size="sm" />
           </Center>
-        : tasks.length < 0
+        : tasks.length == []
             ? <Center mt={150}>
                 <FontAwesome name="tasks" size={150} color="gray" />
                 <Heading size="md" color="gray.500">
-                  Nenhuma task registrada
+                  Nenhuma task salva
                 </Heading>
               </Center>
             : error
@@ -117,7 +128,10 @@ const List = () => {
                                 color="white"
                               />
                             </Button>
-                            <Button bg="red.500">
+                            <Button
+                              bg="red.500"
+                              onPress={() => createTwoButtonAlert (item.id)}
+                            >
                               <FontAwesome
                                 name="trash-o"
                                 size={20}

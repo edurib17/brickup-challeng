@@ -58,8 +58,9 @@ export const deleteTask = id => async (dispatch, getState) => {
     dispatch ({
       type: TASK_DELETE_REQUEST,
     });
+    const task = realm.objects ('Task').filtered ('id == $0', id);
     realm.write (() => {
-      realm.delete (realm.objectForPrimaryKey ('Task', repository.id));
+      realm.delete(task);
     });
 
     dispatch ({type: TASK_DELETE_SUCCESS});
