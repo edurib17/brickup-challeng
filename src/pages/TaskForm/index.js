@@ -15,11 +15,12 @@ import {
 } from 'native-base';
 import {useNavigation} from '@react-navigation/native';
 import {useDispatch, useSelector} from 'react-redux';
-import {registerTask} from '../../actions/taskActions';
+import {TASK_UPDATE_RESET} from "../../constants/taskConstants"
+import {registerTask, listTaskDetails,updateTask} from '../../actions/taskActions';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import * as ImagePicker from 'react-native-image-picker';
 
-const TaskForm = () => {
+const TaskForm = ({route}) => {
   const [title, setTitle] = useState ('');
   const [description, setDescription] = useState ('');
   const [image, setImage] = useState (null);
@@ -29,7 +30,24 @@ const TaskForm = () => {
   const navigation = useNavigation ();
   const dispatch = useDispatch ();
   const taskCreate = useSelector (state => state.taskCreate);
+  const taskDetails = useSelector (state => state.taskDetails);
+  const taskUpdate = useSelector (state => state.taskUpdate);
+  const {task} = taskDetails;
   const {error} = taskCreate;
+  const {sucess:successUpdate,error:errorUpdate} = taskUpdate;
+
+  useEffect (
+    () => {
+      if(!route.params) return dispatch({type:TASK_UPDATE_RESET})
+      dispatch (listTaskDetails (route.params?.id));  
+      if(task){
+        setTitle(task[0]?.title)
+        setDescription(task[0]?.description)
+        setImage(task[0]?.image)
+      }
+    },
+    [dispatch]
+  );
 
   const pickImage = () => {
     let options = {
@@ -207,7 +225,6 @@ const TaskForm = () => {
               >
                 <Text color="white">Salvar</Text>
               </Button>
-
               {error &&
                 <Center mt={15}>
                   <Text color="red.300">

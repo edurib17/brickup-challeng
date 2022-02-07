@@ -3,7 +3,7 @@ import {Box, HStack, Text, View, IconButton, StatusBar} from 'native-base';
 import {useNavigation} from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
-const Header = ({name}) => {
+const Header = (props) => {
   const navigation = useNavigation ();
   return (
     <View>
@@ -15,7 +15,7 @@ const Header = ({name}) => {
         alignItems="center"
         w="100%"
       >
-        {name === 'Cadastro'
+        {props.name === 'Cadastro'
           ? <HStack
               p={3}
               w="60%"
@@ -28,14 +28,14 @@ const Header = ({name}) => {
               />
               <Box>
                 <Text color="white" fontSize="20" fontWeight="bold">
-                  {name}
+                  {props.name}
                 </Text>
               </Box>
 
             </HStack>
           : null}
 
-        {name === 'Task'
+        {props.name === 'Task'
           ? <HStack
               p={3}
               w="59%"
@@ -48,14 +48,14 @@ const Header = ({name}) => {
               />
               <Box>
                 <Text color="white" fontSize="20" fontWeight="bold">
-                  {name}
+                  {props.name}
                 </Text>
               </Box>
 
             </HStack>
           : null}
 
-        {name === 'Todo-List'
+        {props.name === 'Todo-List'
           ? <HStack
               p={3}
               w="100%"
@@ -63,7 +63,7 @@ const Header = ({name}) => {
               alignItems="center"
             >
               <Text color="white" m={1} p={1} fontSize="20" fontWeight="bold">
-                {name}
+                {props.name}
               </Text>
               <IconButton
                 onPress={() => navigation.push ('Form')}

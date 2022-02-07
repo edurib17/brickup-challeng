@@ -31,7 +31,7 @@ const List = () => {
     dispatch (listTasks ());
   }, []);
 
-  const createTwoButtonAlert = id => {
+  const deleteTask = id => {
     return Alert.alert ('Excluir Task', 'Você tem certeza ??', [
       {
         text: 'Cancelar',
@@ -121,7 +121,13 @@ const List = () => {
                             >
                               <AntDesign name="eyeo" size={20} color="white" />
                             </Button>
-                            <Button bg="yellow.300">
+                            <Button
+                              bg="yellow.300"
+                              onPress={() =>
+                                navigation.push ('Form', {
+                                  id: item.id,
+                                })}
+                            >
                               <FontAwesome
                                 name="pencil"
                                 size={20}
@@ -130,7 +136,7 @@ const List = () => {
                             </Button>
                             <Button
                               bg="red.500"
-                              onPress={() => createTwoButtonAlert (item.id)}
+                              onPress={() => deleteTask (item.id)}
                             >
                               <FontAwesome
                                 name="trash-o"
