@@ -35,6 +35,26 @@ const Header = ({name}) => {
             </HStack>
           : null}
 
+        {name === 'Task'
+          ? <HStack
+              p={3}
+              w="59%"
+              justifyContent="space-between"
+              alignItems="center"
+            >
+              <IconButton
+                onPress={() => navigation.push ('Home')}
+                icon={<Icon name="arrow-left" size={20} color="white" />}
+              />
+              <Box>
+                <Text color="white" fontSize="20" fontWeight="bold">
+                  {name}
+                </Text>
+              </Box>
+
+            </HStack>
+          : null}
+
         {name === 'Todo-List'
           ? <HStack
               p={3}

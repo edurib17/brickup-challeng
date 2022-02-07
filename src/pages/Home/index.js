@@ -6,10 +6,12 @@ import List from '../../components/List';
 
 const Home = () => {
   return (
-    <View>
+    <>
       <Header name="Todo-List" />
-      <List />
-    </View>
+      <View style={{flex: 1}}>
+        <List />
+      </View>
+    </>
   );
 };
 

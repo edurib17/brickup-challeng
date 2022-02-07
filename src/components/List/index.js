@@ -1,10 +1,12 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect} from 'react';
+import {FlatList} from 'react-native';
+import {useDispatch, useSelector} from 'react-redux';
+import {listTasks} from '../../actions/taskActions';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import {
   Box,
   Heading,
-  FlatList,
   HStack,
   Text,
   VStack,
@@ -14,106 +16,120 @@ import {
   Center,
   Button,
   Spinner,
-  ScrollView,
 } from 'native-base';
-import realm from '../../services/TaskSchema';
+import {useNavigation} from '@react-navigation/native';
 import moment from 'moment';
 
 const List = () => {
-  const [data, setData] = useState ([]);
-  const [toast, setToast] = useState (false);
+  const navigation = useNavigation ();
+  const dispatch = useDispatch ();
+  const tasksList = useSelector (state => state.tasksList);
+  const {loading, error, tasks} = tasksList;
 
   useEffect (() => {
-    setToast (true);
-    const tasks = realm.objects ('Task');
-    setData (tasks);
-    setToast (false);
-    realm.write (() => {
-      // realm.deleteAll()
-      //realm.delete(realm.objects('Task'));
-    });
+    dispatch (listTasks ());
   }, []);
 
   return (
     <View>
-      <Heading fontSize="xl" marginTop="-15px" />
-      {data.length <= 0 && toast == false
-        ? <Center mt={150}>
-            <FontAwesome name="tasks" size={150} color="gray" />
-            <Heading size="md" color="gray.500">
-              Nenhuma task registrada
-            </Heading>
-          </Center>
-        : null}
-      {toast
+      {loading
         ? <Center mt={150}>
             <Spinner color="gray.900" size="sm" />
           </Center>
-        : null}
-      <ScrollView maxW="900" h="100%">
-        <FlatList
-          data={data}
-          renderItem={({item}) => (
-            <Box
-              borderBottomWidth="1"
-              _dark={{
-                borderColor: 'gray.600',
-              }}
-              borderColor="coolGray.200"
-              pl="4"
-              pr="5"
-              py="2"
-            >
-              <HStack space={3} justifyContent="space-between">
-                <Avatar
-                  borderRadius={10}
-                  size="48px"
-                  source={{
-                    uri: item.image,
-                  }}
-                />
-                <VStack>
-                  <Text
-                    _dark={{
-                      color: 'warmGray.50',
+        : tasks.length < 0
+            ? <Center mt={150}>
+                <FontAwesome name="tasks" size={150} color="gray" />
+                <Heading size="md" color="gray.500">
+                  Nenhuma task registrada
+                </Heading>
+              </Center>
+            : error
+                ? <Center mt={150}>
+                    <Heading size="md" color="red.300">
+                      {error}
+                    </Heading>
+                  </Center>
+                : <FlatList
+                    style={{marginTop: 20, marginBottom: 35}}
+                    contentContainerStyle={{
+                      paddingHorizontal: 5,
                     }}
-                    color="coolGray.800"
-                    bold
-                    numberOfLines={2}
-                    ellipsizeMode="head"
-                  >
-                    {item.title}
+                    data={tasks}
+                    renderItem={({item}) => (
+                      <Box
+                        borderBottomWidth="1"
+                        _dark={{
+                          borderColor: 'gray.600',
+                        }}
+                        borderColor="coolGray.200"
+                        pl="4"
+                        pr="5"
+                        py="2"
+                      >
+                        <HStack space={3} justifyContent="space-between">
+                          <Avatar
+                            borderRadius={10}
+                            size="48px"
+                            source={{
+                              uri: item.image,
+                            }}
+                          />
+                          <VStack>
+                            <Text
+                              _dark={{
+                                color: 'warmGray.50',
+                              }}
+                              color="coolGray.800"
+                              bold
+                              numberOfLines={2}
+                              ellipsizeMode="head"
+                            >
+                              {item.title}
 
-                  </Text>
-                  <Text
-                    color="coolGray.600"
-                    _dark={{
-                      color: 'warmGray.200',
-                    }}
-                  >
+                            </Text>
+                            <Text
+                              color="coolGray.600"
+                              _dark={{
+                                color: 'warmGray.200',
+                              }}
+                            >
 
-                    {moment (item.datetime).format ('DD/MM/YYYY')}
-                  </Text>
-                </VStack>
-                <Spacer />
-                <HStack space={1} p="2" justifyContent="space-between">
-                  <Button bg="gray.700">
-                    <AntDesign name="eyeo" size={20} color="white" />
-                  </Button>
-                  <Button bg="yellow.300">
-                    <FontAwesome name="pencil" size={20} color="white" />
-                  </Button>
-                  <Button bg="red.500">
-                    <FontAwesome name="trash-o" size={20} color="white" />
-                  </Button>
-                </HStack>
-              </HStack>
-            </Box>
-          )}
-          keyExtractor={item => item.id}
-        />
-        <Box mt="25px" />
-      </ScrollView>
+                              {moment (item.datetime).format ('DD/MM/YYYY')}
+                            </Text>
+                          </VStack>
+                          <Spacer />
+                          <HStack
+                            space={1}
+                            p="2"
+                            justifyContent="space-between"
+                          >
+                            <Button
+                              bg="gray.700"
+                              onPress={() =>
+                                navigation.push ('TaskView', {id: item.id})}
+                            >
+                              <AntDesign name="eyeo" size={20} color="white" />
+                            </Button>
+                            <Button bg="yellow.300">
+                              <FontAwesome
+                                name="pencil"
+                                size={20}
+                                color="white"
+                              />
+                            </Button>
+                            <Button bg="red.500">
+                              <FontAwesome
+                                name="trash-o"
+                                size={20}
+                                color="white"
+                              />
+                            </Button>
+                          </HStack>
+                        </HStack>
+                      </Box>
+                    )}
+                    keyExtractor={item => item.id}
+                  />}
     </View>
   );
 };

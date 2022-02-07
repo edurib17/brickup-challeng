@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import Header from '../../components/Header';
 import AlertTask from '../../components/AlertTask';
 import {
@@ -14,10 +14,10 @@ import {
   Image,
 } from 'native-base';
 import {useNavigation} from '@react-navigation/native';
-import uuid from 'react-native-uuid';
+import {useDispatch, useSelector} from 'react-redux';
+import {registerTask} from '../../actions/taskActions';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import * as ImagePicker from 'react-native-image-picker';
-import realm from '../../services/TaskSchema';
 
 const TaskForm = () => {
   const [title, setTitle] = useState ('');
@@ -27,6 +27,9 @@ const TaskForm = () => {
   const [errors, setErrors] = useState ({});
   const [status, setStatus] = useState ({});
   const navigation = useNavigation ();
+  const dispatch = useDispatch ();
+  const taskCreate = useSelector (state => state.taskCreate);
+  const {error} = taskCreate;
 
   const pickImage = () => {
     let options = {
@@ -36,12 +39,8 @@ const TaskForm = () => {
       },
     };
     ImagePicker.launchImageLibrary (options, res => {
-      if (res.didCancel) {
-        console.log ('User cancelled image picker');
-      } else {
-        setImage (null);
-        setImage (res.assets[0].uri);
-      }
+      if (!res.didCancel) setImage (null);
+      setImage (res.assets[0].uri);
     });
   };
 
@@ -90,23 +89,11 @@ const TaskForm = () => {
   };
 
   async function saveTask () {
-    try {
-      realm.write (() => {
-        realm.create ('Task', {
-          id: uuid.v4 (),
-          title: title,
-          description: description,
-          image: image,
-          datetime: Date(),
-        });
-      });
-      ativeAlert ('success', 'Task salva com sucesso!!');
-      setTimeout (() => {
-        navigation.push ('Home');
-      }, 1000);
-    } catch (error) {
-      console.log (error);
-    }
+    dispatch (registerTask (title, description, image));
+    ativeAlert ('success', 'Task salva com sucesso!!');
+    setTimeout (() => {
+      navigation.push ('Home');
+    }, 1000);
   }
 
   async function handleAddTask () {
@@ -156,7 +143,7 @@ const TaskForm = () => {
                       fontSize: 'xs',
                     }}
                   >
-                    O título deve conter pelo menos 3 caracteres.
+                    Título deve conter pelo menos 3 caracteres.
                   </FormControl.HelperText>}
             </Stack>
             <Stack>
@@ -189,11 +176,12 @@ const TaskForm = () => {
                       fontSize: 'xs',
                     }}
                   >
-                    O título deve conter pelo menos 6 caracteres.
+                    Descrição deve conter pelo menos 6 caracteres.
                   </FormControl.HelperText>}
               <Center>
                 {image &&
                   <Image
+                    alt="image"
                     source={{uri: image}}
                     style={{
                       width: 200,
@@ -219,6 +207,13 @@ const TaskForm = () => {
               >
                 <Text color="white">Salvar</Text>
               </Button>
+
+              {error &&
+                <Center mt={15}>
+                  <Text color="red.300">
+                    {error}
+                  </Text>
+                </Center>}
             </Stack>
           </Stack>
         </FormControl>
