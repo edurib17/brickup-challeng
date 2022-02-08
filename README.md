@@ -42,10 +42,4 @@ npx react-native start
 npx react-native run-android
 ```
 
-#### 4. Acessar o apk gerado
-
-```
-cd android/app/build/outputs/apk/debug/
-Nome do arquivo: app-debug.apk
-```
 
