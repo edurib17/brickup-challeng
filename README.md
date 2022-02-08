@@ -38,7 +38,7 @@ npm install
 #### 3. Execute o projeto
 
 ```
-npx npx react-native start    
+npx react-native start    
 npx react-native run-android
 ```
 
