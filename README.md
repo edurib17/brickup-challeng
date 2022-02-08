@@ -10,7 +10,7 @@
 - React Navigation [react-navigation](https://reactnavigation.org/)
 - React Navigation Stack [react-navigation-stack](https://reactnavigation.org/docs/stack-navigator/)
 - React-native-image-picker [react-native-image-picker](https://github.com/react-native-image-picker/react-native-image-picker)
-- React-native-uuid[react-native-uuid](https://www.npmjs.com/package/react-native-uuid)
+- React-native-uuid [react-native-uuid](https://www.npmjs.com/package/react-native-uuid)
 
 
 
