@@ -31,13 +31,13 @@ const List = () => {
     dispatch (listTasks ());
   }, []);
 
-  const deleteTask = id => {
+  const deleteOneTask = id => {
     return Alert.alert ('Excluir Task', 'Você tem certeza ??', [
       {
         text: 'Cancelar',
         style: 'cancel',
       },
-      {text: 'Confirmar', onPress: () => dispatch (deleteTask (id))},
+      {text: 'Confirmar', onPress: () => dispatch (deleteTask(id))},
     ]);
   };
 
@@ -126,6 +126,9 @@ const List = () => {
                               onPress={() =>
                                 navigation.push ('Form', {
                                   id: item.id,
+                                  title: item.title,
+                                  description: item.description,
+                                  image: item.image,
                                 })}
                             >
                               <FontAwesome
@@ -136,7 +139,7 @@ const List = () => {
                             </Button>
                             <Button
                               bg="red.500"
-                              onPress={() => deleteTask (item.id)}
+                              onPress={() => deleteOneTask (item.id)}
                             >
                               <FontAwesome
                                 name="trash-o"

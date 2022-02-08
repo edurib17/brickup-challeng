@@ -40,7 +40,7 @@ export const listTasks = (state = {tasks: []}) => async dispatch => {
 export const listTaskDetails = id => async dispatch => {
   try {
     dispatch ({type: TASK_DETAILS_REQUEST});
-    const data = realm.objects ('Task').filtered ('id == $0', id);
+    const data = realm.objects('Task').filtered ('id == $0', id);
     dispatch ({
       type: TASK_DETAILS_SUCCESS,
       payload: data,
@@ -60,7 +60,7 @@ export const deleteTask = id => async (dispatch, getState) => {
     });
     const task = realm.objects ('Task').filtered ('id == $0', id);
     realm.write (() => {
-      realm.delete(task);
+      realm.delete (task);
     });
 
     dispatch ({type: TASK_DELETE_SUCCESS});
@@ -96,18 +96,19 @@ export const registerTask = (title, description, image) => async dispatch => {
   }
 };
 
-export const updateTask = task => async (dispatch, getState) => {
+export const updateTask = (id, title, description, image) => async (
+  dispatch
+) => {
   try {
     dispatch ({
       type: TASK_UPDATE_REQUEST,
     });
-    const taskUpdate = realm.objects ('Task').filtered ('id == $0', task.id);
-    const {data} = realm.write (() => {
-      taskUpdate.title = task.title;
-      taskUpdate.description = task.description;
-      taskUpdate.image = task.image;
+    const taskUpdate = realm.objects ('Task').filtered ('id == $0', id);
+    const data = realm.write (() => {
+      taskUpdate[0].title = title;
+      taskUpdate[0].description = description;
+      taskUpdate[0].image = image;
     });
-
     dispatch ({type: TASK_UPDATE_SUCCESS, payload: data});
   } catch (error) {
     dispatch ({

@@ -14,9 +14,8 @@ import {
   Image,
 } from 'native-base';
 import {useNavigation} from '@react-navigation/native';
-import {useDispatch, useSelector} from 'react-redux';
-import {TASK_UPDATE_RESET} from "../../constants/taskConstants"
-import {registerTask, listTaskDetails,updateTask} from '../../actions/taskActions';
+import { useDispatch,useSelector} from 'react-redux';
+import {registerTask, updateTask} from '../../actions/taskActions';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import * as ImagePicker from 'react-native-image-picker';
 
@@ -25,28 +24,24 @@ const TaskForm = ({route}) => {
   const [description, setDescription] = useState ('');
   const [image, setImage] = useState (null);
   const [alert, setAlert] = useState (false);
-  const [errors, setErrors] = useState ({});
+  const [error, setError] = useState (false);
   const [status, setStatus] = useState ({});
+  const [id,setId] = useState("");
   const navigation = useNavigation ();
   const dispatch = useDispatch ();
   const taskCreate = useSelector (state => state.taskCreate);
-  const taskDetails = useSelector (state => state.taskDetails);
   const taskUpdate = useSelector (state => state.taskUpdate);
-  const {task} = taskDetails;
-  const {error} = taskCreate;
-  const {sucess:successUpdate,error:errorUpdate} = taskUpdate;
 
   useEffect (
     () => {
-      if(!route.params) return dispatch({type:TASK_UPDATE_RESET})
-      dispatch (listTaskDetails (route.params?.id));  
-      if(task){
-        setTitle(task[0]?.title)
-        setDescription(task[0]?.description)
-        setImage(task[0]?.image)
-      }
+          if(route.params?.id){
+            setId(route.params.id)
+            setTitle(route.params.title)
+            setDescription(route.params.description)
+            setImage(route.params.image)
+          }
     },
-    [dispatch]
+    []
   );
 
   const pickImage = () => {
@@ -56,9 +51,19 @@ const TaskForm = ({route}) => {
         path: 'images',
       },
     };
-    ImagePicker.launchImageLibrary (options, res => {
-      if (!res.didCancel) setImage (null);
-      setImage (res.assets[0].uri);
+    ImagePicker.launchImageLibrary (options, response => {
+      if (response.didCancel) {
+        console.log('User cancelled image picker');
+      } else if (response.error) {
+        console.log('ImagePicker Error: ', response.error);
+      } else if (response.customButton) {
+        console.log('User tapped custom button: ', response.customButton);
+        alert(response.customButton);
+      } else {
+        const source = { uri: response.uri };
+        setImage (null)
+        setImage (response.assets[0].uri);
+      }
     });
   };
 
@@ -79,35 +84,24 @@ const TaskForm = ({route}) => {
 
   const validate = () => {
     if (title === undefined) {
-      setErrors ({
-        ...errors,
-        title: 'Preencha título corretamente!!',
-      });
+      setError(true);
       return false;
     } else if (title.length < 3) {
-      setErrors ({
-        ...errors,
-        title: 'O campo título é muito pequeno',
-      });
+      setError (true);
       return false;
     } else if (description === undefined) {
-      setErrors ({
-        ...errors,
-        description: 'Preencha descrição corretamente!!',
-      });
+      setError (true);
       return false;
     } else if (description.length < 5) {
-      setErrors ({
-        ...errors,
-        description: 'O campo descrição é muito pequeno',
-      });
+      setError (true);
       return false;
     }
     return true;
   };
 
   async function saveTask () {
-    dispatch (registerTask (title, description, image));
+    if(!id) dispatch(registerTask (title, description, image))
+    else dispatch(updateTask(id,title, description, image))
     ativeAlert ('success', 'Task salva com sucesso!!');
     setTimeout (() => {
       navigation.push ('Home');
@@ -117,7 +111,7 @@ const TaskForm = ({route}) => {
   async function handleAddTask () {
     if (image == null) return ativeAlert ('info', 'Escolha uma imagem!!');
     if (validate ()) {
-      setErrors ({});
+      setError (false);
       await saveTask ();
       setTitle ('');
       setDescription ('');
@@ -134,8 +128,7 @@ const TaskForm = ({route}) => {
           w="xs"
           maxW="300"
           isRequired
-          isInvalid={'title' in errors}
-        >
+          isInvalid={error}>
           <Stack space={10}>
             <Stack>
               <FormControl.Label
@@ -146,7 +139,7 @@ const TaskForm = ({route}) => {
                 Titulo
               </FormControl.Label>
               <Input maxLength={12} onChangeText={setTitle} value={title} />
-              {'title' in errors
+              {error
                 ? <FormControl.ErrorMessage
                     _text={{
                       fontSize: 'xs',
@@ -154,7 +147,7 @@ const TaskForm = ({route}) => {
                       fontWeight: 500,
                     }}
                   >
-                    {errors.title}
+                      Título deve conter pelo menos 3 caracteres.
                   </FormControl.ErrorMessage>
                 : <FormControl.HelperText
                     _text={{
@@ -179,7 +172,7 @@ const TaskForm = ({route}) => {
                 onChangeText={setDescription}
                 value={description}
               />
-              {'description' in errors
+              { error
                 ? <FormControl.ErrorMessage
                     _text={{
                       fontSize: 'xs',
@@ -187,7 +180,7 @@ const TaskForm = ({route}) => {
                       fontWeight: 500,
                     }}
                   >
-                    {errors.description}
+                     Descrição deve conter pelo menos 6 caracteres.
                   </FormControl.ErrorMessage>
                 : <FormControl.HelperText
                     _text={{
@@ -225,12 +218,6 @@ const TaskForm = ({route}) => {
               >
                 <Text color="white">Salvar</Text>
               </Button>
-              {error &&
-                <Center mt={15}>
-                  <Text color="red.300">
-                    {error}
-                  </Text>
-                </Center>}
             </Stack>
           </Stack>
         </FormControl>

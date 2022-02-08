@@ -25,7 +25,6 @@ const TaskView = ({route}) => {
   useEffect (
     () => {
       dispatch(listTaskDetails(id));
-
     },
     [dispatch]
   );
